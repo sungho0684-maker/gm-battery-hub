@@ -72,6 +72,23 @@ header .logo-pill img{
   height:38px;display:block;
   max-width:240px;object-fit:contain;
 }
+header .credit{
+  margin-top:14px;padding:8px 14px;
+  background:rgba(255,255,255,0.10);
+  border:1px solid rgba(255,255,255,0.22);
+  border-radius:10px;
+  display:inline-block;
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+}
+header .credit-line{
+  display:block;
+  font-size:10.5px;font-weight:500;
+  color:rgba(255,255,255,0.92);
+  letter-spacing:0.2px;
+  line-height:1.6;
+}
+header .credit-line:first-child{font-weight:700;font-size:11px;letter-spacing:0.5px}
 
 /* 카드 */
 .card{
@@ -302,6 +319,10 @@ select{
     <div class="logo-pill"><img src="logo.png" alt="국민배터리"></div>
     <h1>동부산점</h1>
     <p>배터리 마진 계산기</p>
+    <div class="credit">
+      <span class="credit-line">🛠 본점 R&amp;D 직접 제작</span>
+      <span class="credit-line">⚡ GitHub × Netlify 자동 배포 · 실시간 업데이트</span>
+    </div>
   </header>
 
   <!-- 입력 카드 -->
@@ -467,7 +488,7 @@ select{
     </div>
   </section>
 
-  <div class="footer">국민배터리 동부산점 마진계산기 · v1.4 (마진율% + 목표순익 역산)</div>
+  <div class="footer">국민배터리 동부산점 마진계산기 · v1.5 (본점 크레딧 배지)</div>
 </div>
 
 <script>
