@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>국민배터리 동부산점 · 마진 계산기</title>
+
+<!-- PWA / 홈 화면 추가용 메타데이터 -->
+<meta name="theme-color" content="#667eea">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="동부산점">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" rx="34" fill="%23667eea"/><text x="90" y="118" font-size="74" font-weight="800" text-anchor="middle" fill="white" font-family="Apple SD Gothic Neo,sans-serif">동</text></svg>'>
+<link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" rx="34" fill="%23667eea"/><text x="90" y="118" font-size="74" font-weight="800" text-anchor="middle" fill="white" font-family="Apple SD Gothic Neo,sans-serif">동</text></svg>'>
+<link rel="manifest" href='data:application/manifest+json;utf8,{"name":"국민배터리 동부산점 마진계산기","short_name":"동부산점","start_url":"./","display":"standalone","background_color":"%23f5f7fa","theme_color":"%23667eea"}'>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@300;400;600;700;800&display=swap');
+
+:root{
+  --primary:#03C75A;
+  --primary-dark:#029645;
+  --primary-soft:rgba(3,199,90,0.10);
+  --secondary:#667eea;
+  --secondary-dark:#5566d6;
+  --secondary-soft:rgba(102,126,234,0.12);
+  --bg-main:#f8f9fa;
+  --bg-card:#ffffff;
+  --bg-soft:#f5f7fa;
+  --text-primary:#1a1a1a;
+  --text-secondary:#666666;
+  --text-muted:#999999;
+  --border:#e5e5e5;
+  --border-soft:#eef0f3;
+  --shadow:rgba(0,0,0,0.08);
+  --green-dark:#029645;
+  --red:#dc3545;
+  --red-bg:#fff5f5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body{
+  min-height:100vh;
+  font-size:16px;line-height:1.5;
+  color:var(--text-primary);
+  background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);
+  background-attachment:fixed;
+  padding:14px 8px 60px;
+}
+.wrap{max-width:520px;margin:0 auto}
+
+/* 헤더 */
+header{
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  color:#fff;border-radius:18px;padding:18px 22px;
+  margin-bottom:14px;
+  box-shadow:0 8px 24px rgba(102,126,234,0.25);
+  text-align:center;
+}
+header h1{
+  font-family:'Gowun Batang',serif;
+  font-size:22px;font-weight:700;letter-spacing:-0.5px;
+  margin-bottom:3px;
+}
+header p{font-size:12px;opacity:0.9;font-weight:400}
+header .logo-pill{
+  display:inline-block;
+  margin-bottom:8px;
+}
+header .logo-pill img{
+  height:38px;display:block;
+  max-width:240px;object-fit:contain;
+}
+
+/* 카드 */
+.card{
+  background:var(--bg-card);
+  border-radius:16px;padding:18px 16px;margin-bottom:12px;
+  box-shadow:0 4px 16px var(--shadow);
+}
+.card h2{
+  margin:0 0 14px;font-size:15px;font-weight:700;
+  color:var(--text-primary);
+  display:flex;align-items:center;gap:6px;
+}
+.card h2 .sub{
+  color:var(--text-muted);font-size:11px;font-weight:600;
+  margin-left:auto;background:var(--bg-soft);
+  padding:3px 10px;border-radius:999px;
+}
+
+/* 입력 필드 */
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field label{
+  display:block;font-size:12px;font-weight:700;
+  color:var(--text-secondary);margin-bottom:6px;
+}
+.field label small{font-weight:400;color:var(--text-muted);margin-left:4px}
+
+input[type=text],input[type=number],select,textarea{
+  width:100%;padding:12px 14px;
+  font-size:15px;font-family:inherit;
+  border:2px solid var(--border);border-radius:10px;
+  background:#fff;color:var(--text-primary);
+  outline:none;
+  transition:border-color .15s,box-shadow .15s;
+  -webkit-appearance:none;appearance:none;
+}
+input[type=number]{font-variant-numeric:tabular-nums}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--secondary);
+  box-shadow:0 0 0 4px var(--secondary-soft);
+}
+input:disabled,select:disabled{background:#f0f0f0;color:var(--text-muted);cursor:not-allowed}
+textarea{min-height:60px;resize:vertical;line-height:1.5}
+
+select{
+  padding-right:34px;cursor:pointer;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path fill='%23666' d='M6 9L1 4h10z'/></svg>");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  background-size:12px;
+}
+
+/* 행 (가로 정렬) */
+.row{display:flex;gap:8px;align-items:stretch}
+.row > *{flex:1;min-width:0}
+.row span{flex:0 0 auto;align-self:center;color:var(--text-muted);font-size:13px;font-weight:600}
+
+/* 결제 토글 */
+.seg-group{
+  display:flex;gap:4px;
+  background:var(--bg-soft);padding:4px;border-radius:11px;
+}
+.seg{
+  flex:1;padding:11px 8px;
+  background:transparent;border:none;border-radius:8px;
+  font-size:14px;font-weight:700;color:var(--text-secondary);
+  cursor:pointer;font-family:inherit;
+  transition:all .15s;
+}
+.seg.active{
+  background:#fff;color:var(--secondary);
+  box-shadow:0 2px 6px var(--shadow);
+}
+
+/* 결과 카드 */
+.result-card{
+  background:linear-gradient(135deg,#ffffff 0%,#f8faff 100%);
+  border:2px solid var(--secondary-soft);
+}
+.result-grid{display:flex;flex-direction:column;gap:0}
+.result-line{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:8px 0;font-size:14px;
+  color:var(--text-secondary);
+}
+.result-line + .result-line{border-top:1px dashed var(--border-soft)}
+.result-line .label{flex:1;min-width:0;padding-right:8px}
+.result-line .v{
+  font-weight:700;font-variant-numeric:tabular-nums;
+  color:var(--text-primary);flex-shrink:0;text-align:right;
+}
+.result-line.plus .v{color:var(--green-dark)}
+.result-line.minus .v{color:#444}
+.result-line.refund .v{color:var(--green-dark)}
+.result-line.total{
+  margin-top:6px;padding-top:14px;
+  border-top:2px solid var(--border) !important;
+  font-size:16px;font-weight:700;
+}
+.result-line.total .label{color:var(--text-primary);font-size:15px}
+.result-line.total .v{
+  font-family:'Gowun Batang',serif;
+  font-size:26px;color:var(--green-dark);
+}
+.result-line.total.negative .v{color:var(--red)}
+
+/* 부가세 명세 박스 (납부 부가세 줄 아래) */
+.vat-detail{
+  background:var(--bg-soft);
+  border-radius:8px;
+  padding:9px 12px;
+  margin:2px 0 6px;
+  display:flex;flex-direction:column;gap:3px;
+}
+.vat-line{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-size:12px;font-weight:700;color:var(--text-secondary);
+  padding-top:5px;
+}
+.vat-line:first-child{padding-top:0}
+.vat-line .v{font-variant-numeric:tabular-nums}
+.vat-line.received .v{color:var(--green-dark)}
+.vat-line.paid .v{color:#444}
+.vat-sub{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-size:11px;font-weight:500;color:var(--text-muted);
+  padding-left:14px;line-height:1.6;
+}
+.vat-sub span:last-child{font-variant-numeric:tabular-nums}
+.vat-detail .net-vat{
+  margin-top:5px;padding-top:6px;
+  border-top:1px dashed var(--border);
+  display:flex;justify-content:space-between;
+  font-size:12px;font-weight:700;color:var(--text-primary);
+}
+.vat-detail .net-vat .v{font-variant-numeric:tabular-nums}
+
+.note{
+  margin-top:12px;padding-top:12px;border-top:1px dashed var(--border-soft);
+  font-size:11px;color:var(--text-muted);line-height:1.6;
+}
+
+/* 초기화 버튼 */
+.clear-btn{
+  width:100%;padding:12px;
+  background:var(--bg-soft);
+  border:2px solid var(--border);border-radius:10px;
+  color:var(--text-secondary);font-size:13px;font-weight:600;
+  cursor:pointer;font-family:inherit;
+  margin-top:8px;
+  transition:all .15s;
+}
+.clear-btn:hover,.clear-btn:active{background:#e5e5e5;color:var(--text-primary)}
+
+/* 설정 토글 */
+.settings-toggle{
+  width:100%;padding:13px 14px;
+  background:var(--bg-soft);border:none;border-radius:10px;
+  color:var(--text-secondary);font-size:13px;font-weight:600;
+  cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.settings-toggle:hover{background:#e5e5e5;color:var(--text-primary)}
+.settings-panel{display:none;padding:14px 4px 4px}
+.settings-panel.open{display:block}
+.settings-hint{font-size:11px;color:var(--text-muted);line-height:1.5;margin-top:4px}
+
+/* footer */
+.footer{
+  text-align:center;font-size:11px;color:var(--text-muted);
+  padding:18px 14px 4px;
+}
+
+/* 핸드폰 좁은 화면 */
+@media (max-width:380px){
+  body{padding:10px 6px 60px}
+  .card{padding:16px 12px}
+  header h1{font-size:19px}
+  .result-line.total .v{font-size:22px}
+}
+
+/* PWA 풀스크린 모드일 때 상단 여백 */
+@media (display-mode:standalone){
+  body{padding-top:env(safe-area-inset-top,14px)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo-pill"><img src="logo.png" alt="국민배터리"></div>
+    <h1>동부산점</h1>
+    <p>배터리 마진 계산기</p>
+  </header>
+
+  <!-- 입력 카드 -->
+  <section class="card">
+    <h2>📝 입력</h2>
+
+    <div class="field">
+      <label>① 배터리 선택 <small>(용량 선택 시 폐전지 무게 자동입력)</small></label>
+      <div class="row">
+        <select id="brand">
+          <option value="">브랜드</option>
+          <option value="로케트">로케트</option>
+          <option value="델코">델코</option>
+          <option value="바르타">바르타 (AGM 독일산)</option>
+          <option value="한국">한국</option>
+          <option value="쏠라이트">쏠라이트</option>
+          <option value="엑스프로">엑스프로</option>
+        </select>
+        <select id="cap" disabled>
+          <option value="">용량</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>② 매입가 <small>(VAT 별도 · 거래처 공급가)</small></label>
+      <input type="number" id="buy" placeholder="예: 80,000" inputmode="numeric">
+    </div>
+
+    <div class="field">
+      <label>③ 판매가 <small>(VAT 포함 · 고객이 내는 금액)</small></label>
+      <input type="number" id="sell" placeholder="예: 110,000" inputmode="numeric">
+    </div>
+
+    <div class="field">
+      <label>④ 결제 방식</label>
+      <div class="seg-group">
+        <button class="seg active" type="button" data-pay="현금">💵 현금</button>
+        <button class="seg" type="button" data-pay="계좌">🏦 계좌</button>
+        <button class="seg" type="button" data-pay="카드">💳 카드</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>⑤ 폐전지 <small>(자동입력 후 무게 직접 수정 가능)</small></label>
+      <div class="row">
+        <input type="number" id="weight" placeholder="무게" step="0.5" inputmode="decimal">
+        <span>kg ×</span>
+        <input type="number" id="rate" placeholder="단가" inputmode="numeric">
+        <span>원/kg</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>⑥ 메모 <small>(선택 · 고객, 차종, 특이사항 등)</small></label>
+      <textarea id="memo" placeholder="예: 그랜저IG, 단골손님 추천"></textarea>
+    </div>
+
+    <button class="clear-btn" type="button" id="clearBtn">↺ 입력 초기화 (다음 거래)</button>
+  </section>
+
+  <!-- 결과 카드 -->
+  <section class="card result-card">
+    <h2>💰 계산 결과 <span class="sub" id="paySummary">현금</span></h2>
+
+    <div class="result-grid">
+      <div class="result-line">
+        <span class="label">매출 (VAT 포함)</span>
+        <span class="v" id="r_sell">0원</span>
+      </div>
+      <div class="result-line plus">
+        <span class="label">+ 폐전지 입금 (VAT 포함)</span>
+        <span class="v" id="r_waste">0원</span>
+      </div>
+      <div class="result-line minus">
+        <span class="label">− 매입 원가 (× 1.1)</span>
+        <span class="v" id="r_buy">0원</span>
+      </div>
+      <div class="result-line minus" id="r_fee_row" style="display:none">
+        <span class="label">− 카드 수수료 (<span id="r_fee_pct">0.4</span>%)</span>
+        <span class="v" id="r_fee">0원</span>
+      </div>
+      <div class="result-line minus" id="r_vat_row">
+        <span class="label" id="r_vat_label">− 납부 부가세</span>
+        <span class="v" id="r_vat">0원</span>
+      </div>
+      <div class="vat-detail" id="r_vat_detail">
+        <div class="vat-line received">
+          <span>📥 매출에서 받은 VAT</span>
+          <span class="v" id="r_vat_received">+0원</span>
+        </div>
+        <div class="vat-sub">
+          <span>· 판매가 VAT (판매가 ÷ 11)</span>
+          <span id="r_vat_d_sell">+0원</span>
+        </div>
+        <div class="vat-sub">
+          <span>· 폐전지 VAT (공급가 × 10%)</span>
+          <span id="r_vat_d_waste">+0원</span>
+        </div>
+        <div class="vat-line paid">
+          <span>📤 매입에서 낸 VAT</span>
+          <span class="v" id="r_vat_paid">−0원</span>
+        </div>
+        <div class="vat-sub">
+          <span>· 매입 VAT (매입가 × 10%)</span>
+          <span id="r_vat_d_buy">−0원</span>
+        </div>
+        <div class="vat-sub" id="r_vat_d_fee_row" style="display:none">
+          <span>· 카드수수료 VAT (수수료 ÷ 11)</span>
+          <span id="r_vat_d_fee">−0원</span>
+        </div>
+        <div class="net-vat">
+          <span id="r_vat_net_label">납부 차액</span>
+          <span class="v" id="r_vat_net">0원</span>
+        </div>
+      </div>
+      <div class="result-line total" id="r_total_row">
+        <span class="label">🟢 세후 실익</span>
+        <span class="v" id="r_net">0원</span>
+      </div>
+    </div>
+
+    <p class="note">
+      <b>공식</b>: 세후순익 = 매출 + 폐전지입금 − 매입×1.1 − 수수료 − 납부부가세<br>
+      매출 VAT는 판매가에서 1/11 분리, 폐전지·매입 VAT는 공급가의 10%.<br>
+      납부 부가세가 음수일 땐 <b>환급 부가세</b>로 표시(국세청에서 환급).
+    </p>
+  </section>
+
+  <!-- 사장님 설정 -->
+  <section class="card">
+    <button class="settings-toggle" id="settingsToggle">
+      <span>⚙️ 사장님 설정 (기본값)</span>
+      <span id="settingsArrow">▼</span>
+    </button>
+    <div class="settings-panel" id="settingsPanel">
+      <div class="field">
+        <label>폐전지 단가 기본값 <small>(원/kg, 시세 바뀌면 수정)</small></label>
+        <input type="number" id="defaultRate" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label>카드 수수료율 <small>(%, 영세사업자 기본 0.4)</small></label>
+        <input type="number" id="defaultCardFee" step="0.01" min="0" inputmode="decimal">
+      </div>
+      <p class="settings-hint">
+        변경 즉시 핸드폰에 저장됩니다. 다음에 앱 열어도 그대로 유지.<br>
+        영세사업자(연 매출 3억 이하) 기준 신용카드 수수료 0.4%.
+      </p>
+    </div>
+  </section>
+
+  <div class="footer">국민배터리 동부산점 마진계산기 · v1.3 (로고 + 델코 통합)</div>
+</div>
+
+<script>
+'use strict';
+
+// 데이터: 브랜드별 가능한 용량 + 무게 (마스터의 weight 테이블에서만 가져옴)
+const DATA = {
+  brands: {
+    '로케트':   ['40','50','60','80','90','100','DIN44','DIN50','DIN60','DIN74','DIN80','DIN90','DIN100','AGM60','AGM70','AGM80','AGM95','AGM105'],
+    '델코':     ['40','50','60','80','90','100','DIN44','DIN50','DIN60','DIN74','DIN80','DIN90','DIN100','AGM60_실버','AGM70_실버','AGM80_실버','AGM95_실버','AGM105_실버','AGM60_블랙','AGM70_블랙','AGM80_블랙','AGM95_블랙'],
+    '바르타':   ['AGM60','AGM70','AGM80','AGM95','AGM105'],
+    '한국':     ['40','50','60','80','90','100','DIN44','DIN50','DIN60','DIN74','DIN80','DIN90','DIN100','AGM60','AGM70','AGM80','AGM95','AGM105'],
+    '쏠라이트': ['40','50','60','80','90','100','DIN44','DIN60','DIN74','DIN80','DIN90','DIN100','AGM60','AGM70','AGM80','AGM95','AGM105'],
+    '엑스프로': ['40','50','60','80','90','100','DIN44','DIN50','DIN60','DIN74','DIN80','DIN90','DIN100'],
+  },
+  capLabels: {
+    '40':'40Ah','50':'50Ah','60':'60Ah','80':'80Ah','90':'90Ah','100':'100Ah',
+    'DIN44':'DIN44 (54459)','DIN50':'DIN50 (55066)','DIN60':'DIN62 (56219)',
+    'DIN74':'DIN74 (57820)','DIN80':'DIN80 (58014)','DIN90':'DIN90 (59042)','DIN100':'DIN100 (60044)',
+    'AGM60':'AGM60 (LN2)','AGM70':'AGM70 (LN3)','AGM80':'AGM80 (LN4)','AGM95':'AGM95 (LN5)','AGM105':'AGM105 (LN6)',
+    'AGM60_실버':'AGM60 실버 (LN2)','AGM70_실버':'AGM70 실버 (LN3)','AGM80_실버':'AGM80 실버 (LN4)','AGM95_실버':'AGM95 실버 (LN5)','AGM105_실버':'AGM105 실버 (LN6)',
+    'AGM60_블랙':'AGM60 블랙 (LN2)','AGM70_블랙':'AGM70 블랙 (LN3)','AGM80_블랙':'AGM80 블랙 (LN4)','AGM95_블랙':'AGM95 블랙 (LN5)',
+  },
+  weights: {
+    '40':9,'50':12,'60':13.5,'80':17.5,'90':20,'100':23,
+    'DIN44':10.5,'DIN50':12,'DIN60':13.5,'DIN74':17,'DIN80':19,'DIN90':21.5,'DIN100':22,
+    'AGM60':17.5,'AGM70':20.5,'AGM80':23,'AGM95':26,'AGM105':29.5,
+    'AGM60_실버':17.5,'AGM70_실버':20.5,'AGM80_실버':23,'AGM95_실버':26,'AGM105_실버':29.5,
+    'AGM60_블랙':17.5,'AGM70_블랙':20.5,'AGM80_블랙':23,'AGM95_블랙':26,
+  }
+};
+
+// 설정 (localStorage)
+const STORE_KEY = 'kb_dongbusan_v1';
+const DEFAULTS = { defaultRate: 1000, cardFee: 0.4 };
+let settings = Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(STORE_KEY) || 'null') || {});
+function saveSettings(){ localStorage.setItem(STORE_KEY, JSON.stringify(settings)); }
+
+// 헬퍼
+const $ = id => document.getElementById(id);
+const won = n => Math.round(n).toLocaleString('ko-KR') + '원';
+let currentPay = '현금';
+
+// 브랜드 → 용량 옵션 채우기
+$('brand').addEventListener('change', e => {
+  const brand = e.target.value;
+  const capSel = $('cap');
+  capSel.innerHTML = '<option value="">용량 선택</option>';
+  if(brand && DATA.brands[brand]){
+    DATA.brands[brand].forEach(cap => {
+      const opt = document.createElement('option');
+      opt.value = cap;
+      opt.textContent = DATA.capLabels[cap];
+      capSel.appendChild(opt);
+    });
+    capSel.disabled = false;
+  } else {
+    capSel.disabled = true;
+  }
+  calculate();
+});
+
+// 용량 → 무게 자동입력
+$('cap').addEventListener('change', e => {
+  const cap = e.target.value;
+  if(cap && DATA.weights[cap] != null){
+    $('weight').value = DATA.weights[cap];
+  }
+  calculate();
+});
+
+// 결제 방식 토글
+document.querySelectorAll('.seg').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.seg').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentPay = btn.dataset.pay;
+    $('paySummary').textContent = currentPay;
+    calculate();
+  });
+});
+
+// 입력 변경 → 자동 재계산
+['buy','sell','weight','rate'].forEach(id => {
+  $(id).addEventListener('input', calculate);
+});
+
+// 설정 변경
+$('defaultRate').addEventListener('input', e => {
+  settings.defaultRate = +e.target.value || 0;
+  saveSettings();
+  $('rate').placeholder = settings.defaultRate;
+  if(!$('rate').value){
+    $('rate').value = settings.defaultRate;
+    calculate();
+  }
+});
+$('defaultCardFee').addEventListener('input', e => {
+  settings.cardFee = +e.target.value || 0;
+  saveSettings();
+  $('r_fee_pct').textContent = settings.cardFee;
+  calculate();
+});
+
+// 설정 토글
+$('settingsToggle').addEventListener('click', () => {
+  const panel = $('settingsPanel');
+  panel.classList.toggle('open');
+  $('settingsArrow').textContent = panel.classList.contains('open') ? '▲' : '▼';
+});
+
+// 초기화
+$('clearBtn').addEventListener('click', () => {
+  if(!confirm('입력값을 모두 지울까요?\n(설정값은 유지됩니다)')) return;
+  $('brand').value = '';
+  $('cap').innerHTML = '<option value="">용량</option>';
+  $('cap').disabled = true;
+  $('buy').value = '';
+  $('sell').value = '';
+  $('weight').value = '';
+  $('rate').value = settings.defaultRate;
+  $('memo').value = '';
+  document.querySelectorAll('.seg').forEach(b => b.classList.remove('active'));
+  document.querySelector('.seg[data-pay="현금"]').classList.add('active');
+  currentPay = '현금';
+  $('paySummary').textContent = '현금';
+  calculate();
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+// 계산 (마스터 박리다매 공식과 100% 동일)
+function calculate(){
+  const sell = +$('sell').value || 0;
+  const buy = +$('buy').value || 0;
+  const weight = +$('weight').value || 0;
+  const rate = +$('rate').value || 0;
+
+  // 매출 (VAT 포함 → VAT 분리)
+  const sellVat = sell / 11;
+
+  // 매입 (VAT 별도 → VAT 추가)
+  const buyVat = buy * 0.1;
+  const buyWithVat = buy * 1.1;
+
+  // 폐전지 (VAT 별도 공급가 + 10% VAT)
+  const wasteSupply = weight * rate;
+  const wasteVat = wasteSupply * 0.1;
+  const wasteInc = wasteSupply + wasteVat;
+
+  // 수수료 (카드만)
+  const fee = currentPay === '카드' ? sell * (settings.cardFee / 100) : 0;
+  const feeVat = fee / 11;
+
+  // 납부 부가세 (음수면 환급)
+  const vat = (sellVat + wasteVat) - (buyVat + feeVat);
+
+  // 세후 순익
+  const net = sell + wasteInc - buyWithVat - fee - vat;
+
+  // 렌더링
+  $('r_sell').textContent = won(sell);
+  $('r_waste').textContent = wasteInc > 0 ? '+' + won(wasteInc) : won(0);
+  $('r_buy').textContent = buyWithVat > 0 ? '−' + won(buyWithVat) : won(0);
+  $('r_net').textContent = won(net);
+
+  // 카드 수수료 줄
+  if(currentPay === '카드'){
+    $('r_fee_row').style.display = '';
+    $('r_fee').textContent = fee > 0 ? '−' + won(fee) : won(0);
+    $('r_fee_pct').textContent = settings.cardFee;
+  } else {
+    $('r_fee_row').style.display = 'none';
+  }
+
+  // 부가세 (납부 vs 환급)
+  if(vat >= 0){
+    $('r_vat_label').textContent = '− 납부 부가세';
+    $('r_vat').textContent = vat > 0 ? '−' + won(vat) : won(0);
+    $('r_vat_row').classList.remove('refund');
+    $('r_vat_row').classList.add('minus');
+  } else {
+    $('r_vat_label').textContent = '+ 환급 부가세';
+    $('r_vat').textContent = '+' + won(-vat);
+    $('r_vat_row').classList.remove('minus');
+    $('r_vat_row').classList.add('refund');
+  }
+
+  // 부가세 상세 명세
+  const totalReceived = sellVat + wasteVat;
+  const totalPaid = buyVat + feeVat;
+  $('r_vat_received').textContent = '+' + won(totalReceived);
+  $('r_vat_d_sell').textContent = '+' + won(sellVat);
+  $('r_vat_d_waste').textContent = '+' + won(wasteVat);
+  $('r_vat_paid').textContent = '−' + won(totalPaid);
+  $('r_vat_d_buy').textContent = '−' + won(buyVat);
+  $('r_vat_d_fee').textContent = '−' + won(feeVat);
+  $('r_vat_d_fee_row').style.display = currentPay === '카드' ? 'flex' : 'none';
+  if(vat >= 0){
+    $('r_vat_net_label').textContent = '국세청에 납부';
+    $('r_vat_net').textContent = '−' + won(vat);
+    $('r_vat_net').style.color = '#444';
+  } else {
+    $('r_vat_net_label').textContent = '국세청에서 환급';
+    $('r_vat_net').textContent = '+' + won(-vat);
+    $('r_vat_net').style.color = 'var(--green-dark)';
+  }
+
+  // 음수 net이면 빨강 강조
+  $('r_total_row').classList.toggle('negative', net < 0);
+}
+
+// 초기 로드
+$('rate').value = settings.defaultRate;
+$('rate').placeholder = settings.defaultRate;
+$('defaultRate').value = settings.defaultRate;
+$('defaultCardFee').value = settings.cardFee;
+$('r_fee_pct').textContent = settings.cardFee;
+calculate();
+</script>
+</body>
+</html>
