@@ -175,8 +175,44 @@ select{
 .result-line.total .v{
   font-family:'Gowun Batang',serif;
   font-size:26px;color:var(--green-dark);
+  text-align:right;
+}
+.result-line.total .v small{
+  display:block;
+  font-family:'Noto Sans KR',sans-serif;
+  font-size:12px;font-weight:600;
+  color:var(--text-secondary);
+  margin-top:2px;
 }
 .result-line.total.negative .v{color:var(--red)}
+.result-line.total.negative .v small{color:var(--red);opacity:0.85}
+
+/* 역산 카드 (목표 순익 → 권장 판매가) */
+.reverse-card{
+  background:linear-gradient(135deg,#fffaf0 0%,#ffffff 100%);
+  border:2px solid #f5a623;
+}
+.reverse-card h2 .sub{
+  background:#fff3d6;color:#92400e;
+}
+.reverse-result{
+  margin-top:12px;padding:14px 16px;
+  background:#fff;border-radius:10px;
+  border:1px dashed #f5a623;
+  text-align:center;
+}
+.reverse-result .label{
+  font-size:12px;color:var(--text-secondary);font-weight:600;
+}
+.reverse-result .v{
+  font-family:'Gowun Batang',serif;
+  font-size:26px;font-weight:700;
+  color:#c2530a;margin-top:4px;display:block;
+}
+.reverse-result .v.empty{color:var(--text-muted);font-size:18px}
+.reverse-result .hint{
+  margin-top:6px;font-size:11px;color:var(--text-muted);
+}
 
 /* 부가세 명세 박스 (납부 부가세 줄 아래) */
 .vat-detail{
@@ -384,7 +420,7 @@ select{
       </div>
       <div class="result-line total" id="r_total_row">
         <span class="label">🟢 세후 실익</span>
-        <span class="v" id="r_net">0원</span>
+        <span class="v"><span id="r_net">0원</span><small id="r_margin"></small></span>
       </div>
     </div>
 
@@ -393,6 +429,20 @@ select{
       매출 VAT는 판매가에서 1/11 분리, 폐전지·매입 VAT는 공급가의 10%.<br>
       납부 부가세가 음수일 땐 <b>환급 부가세</b>로 표시(국세청에서 환급).
     </p>
+  </section>
+
+  <!-- 역산 도우미 -->
+  <section class="card reverse-card">
+    <h2>🎯 목표 순익 역산 <span class="sub">권장 판매가</span></h2>
+    <div class="field">
+      <label>목표 순익 <small>(이 금액 남기려면 얼마에 팔까?)</small></label>
+      <input type="number" id="targetNet" placeholder="예: 30,000" inputmode="numeric">
+    </div>
+    <div class="reverse-result">
+      <span class="label">↓ 권장 판매가 (VAT 포함)</span>
+      <span class="v empty" id="r_sellTarget">─</span>
+      <div class="hint">현재 입력된 매입가 · 폐전지 · 결제방식 기준 자동 계산</div>
+    </div>
   </section>
 
   <!-- 사장님 설정 -->
@@ -417,7 +467,7 @@ select{
     </div>
   </section>
 
-  <div class="footer">국민배터리 동부산점 마진계산기 · v1.3 (로고 + 델코 통합)</div>
+  <div class="footer">국민배터리 동부산점 마진계산기 · v1.4 (마진율% + 목표순익 역산)</div>
 </div>
 
 <script>
@@ -505,6 +555,9 @@ document.querySelectorAll('.seg').forEach(btn => {
   $(id).addEventListener('input', calculate);
 });
 
+// 목표 순익 입력 → 역산만 갱신
+$('targetNet').addEventListener('input', calculateReverse);
+
 // 설정 변경
 $('defaultRate').addEventListener('input', e => {
   settings.defaultRate = +e.target.value || 0;
@@ -540,6 +593,7 @@ $('clearBtn').addEventListener('click', () => {
   $('weight').value = '';
   $('rate').value = settings.defaultRate;
   $('memo').value = '';
+  $('targetNet').value = '';
   document.querySelectorAll('.seg').forEach(b => b.classList.remove('active'));
   document.querySelector('.seg[data-pay="현금"]').classList.add('active');
   currentPay = '현금';
@@ -627,6 +681,57 @@ function calculate(){
 
   // 음수 net이면 빨강 강조
   $('r_total_row').classList.toggle('negative', net < 0);
+
+  // 마진율 % (매출 대비)
+  if(sell > 0){
+    const marginPct = (net / sell) * 100;
+    $('r_margin').textContent = `매출의 ${marginPct.toFixed(1)}%`;
+  } else {
+    $('r_margin').textContent = '';
+  }
+
+  // 역산도 같이 갱신 (매입가/폐전지/결제방식 바뀌면 권장가도 갱신돼야 함)
+  calculateReverse();
+}
+
+// 역산: 목표 순익으로부터 권장 판매가
+function calculateReverse(){
+  const target = +$('targetNet').value || 0;
+  const buy = +$('buy').value || 0;
+  const weight = +$('weight').value || 0;
+  const rate = +$('rate').value || 0;
+  const el = $('r_sellTarget');
+
+  if(target === 0){
+    el.textContent = '─';
+    el.classList.add('empty');
+    return;
+  }
+  if(buy === 0){
+    el.textContent = '매입가 먼저 입력';
+    el.classList.add('empty');
+    return;
+  }
+
+  const wasteSupply = weight * rate;
+  const c = currentPay === '카드' ? settings.cardFee / 100 : 0;
+
+  // sell = (target - wasteSupply + buy) × 11 / (10 × (1 - c))
+  const denom = 10 * (1 - c);
+  if(denom <= 0){
+    el.textContent = '계산 불가';
+    el.classList.add('empty');
+    return;
+  }
+  const required = (target - wasteSupply + buy) * 11 / denom;
+
+  if(required > 0){
+    el.textContent = won(required);
+    el.classList.remove('empty');
+  } else {
+    el.textContent = '0원 이하';
+    el.classList.add('empty');
+  }
 }
 
 // 초기 로드
