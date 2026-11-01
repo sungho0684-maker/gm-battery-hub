@@ -1,0 +1,10 @@
+/assets/catalog.js
+  Cache-Control: no-store
+/
+  Cache-Control: public, max-age=0, must-revalidate
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+/assets/app.js
+  Cache-Control: public, max-age=0, must-revalidate
+/assets/style.css
+  Cache-Control: public, max-age=0, must-revalidate
