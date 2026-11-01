@@ -16,6 +16,7 @@
  const productFocus=products.find(p=>p.id===params.get('product'));
  if(productFocus){query=productFocus.car;maker='전체';kind='전체';}
  $('search').value=query;
+ if(maker!=='전체'||kind!=='전체')$('filter-options').open=true;
  const updated=new Date(catalog.updatedAt);
  // Stale snapshots never continue advertising old exact prices indefinitely.
  const stale=!Number.isFinite(updated.getTime())||Date.now()-updated.getTime()>48*60*60*1000;
@@ -28,7 +29,7 @@
   // Retain every product link but collapse identical named configurations visually.
   items.sort((a,b)=>Number(a.title.startsWith('델코 '))-Number(b.title.startsWith('델코 '))||a.id.localeCompare(b.id));
   const p=items[0],duplicates=items.slice(1);
-  const money=stale?'<p class="price link-price">스토어에서 가격 확인</p>':p.available?`<p class="price-condition">폐배터리 반납 기준</p><p class="price">${won(p.price)}<small>원</small></p><p class="shipping">배송비 ${won(p.shipping)}원 · 합계 ${won(p.price+p.shipping)}원</p>`:'<p class="price link-price">기본 규격 구매 불가</p>';
+  const money=stale?'<p class="price link-price">스토어에서 가격 확인</p>':p.available?`<p class="price-condition">폐배터리 반납 기준</p><p class="price">${won(p.price)}<small>원</small></p><p class="shipping"><span>배송비 ${won(p.shipping)}원</span><strong>합계 ${won(p.price+p.shipping)}원</strong></p>`:'<p class="price link-price">기본 규격 구매 불가</p>';
   return `<article class="product-card" data-product="${p.id}" data-ids="${items.map(x=>x.id).join(',')}"><div class="product-main"><img class="product-photo" src="${esc(p.image)}" alt="${esc(p.car+' '+p.label+' 스토어 대표 이미지')}" loading="lazy" decoding="async" width="110" height="110"><div class="product-info"><div class="product-tags"><span>${esc(p.kind==='일반'?'일반 배터리':p.kind+' 배터리')}</span><span>·</span><span>${esc(p.spec)}</span></div><h4>${esc(p.label)}</h4>${money}</div></div><details class="product-extra"><summary>구매 조건${duplicates.length?' · 다른 상품 링크':''}</summary><p>기본 규격 ${esc(p.spec)} 기준. 다른 규격 선택 시 금액이 달라집니다.</p>${!stale&&p.noReturnPrice!=null?`<p>폐배터리 미반납 ${won(p.noReturnPrice)}원 + 배송비 ${won(p.shipping)}원</p>`:''}<p>쿠폰·개인별 혜택은 결제 화면에서 확인해 주세요.</p><a href="${esc(p.url)}" target="_blank" rel="noopener">상품 상세 보기 ↗</a>${duplicates.length?`<div class="duplicate-links">${duplicates.map((x,i)=>`<a href="${esc(x.url)}" target="_blank" rel="noopener" data-id="${x.id}">같은 차종·제품의 다른 등록 상품 ${i+1} ↗</a>`).join('')}</div>`:''}</details><div class="card-bottom"><span>${p.toolRental?'반납 선택 시 공구 대여 가능':'구매 옵션은 스토어에서 확인'}</span>${p.available?`<a class="buy" href="${esc(p.url)}" data-id="${p.id}" target="_blank" rel="noopener"><span class="n" aria-hidden="true">N</span> 스마트스토어 구매 <span aria-hidden="true">↗</span></a>`:`<span class="disabled-buy">스토어에서 상태 확인</span>`}</div></article>`;
  }
  function render(){
@@ -38,6 +39,7 @@
   const all=[...groups.entries()].sort((a,b)=>a[1][0].car.localeCompare(b[1][0].car,'ko'));shown=all.slice(0,limit);
   $('result-count').textContent=`${groups.size.toLocaleString('ko-KR')}개 차종·조건 / ${filtered.length.toLocaleString('ko-KR')}개 등록 상품`;
   $('results-title').textContent=query?`‘${query}’ 검색 결과`:'차종별 구매 안내';
+  $('filter-options').querySelector('summary').textContent=(maker==='전체'&&kind==='전체')?'제조사 · 배터리 종류로 좁히기':`선택한 조건: ${[maker,kind].filter(x=>x!=='전체').join(' · ')}`;
   $('results').innerHTML=shown.map(([,ps])=>{const cards=new Map();for(const p of ps){const key=JSON.stringify([p.line,p.price,p.noReturnPrice,p.shipping,p.available,p.toolRental]);if(!cards.has(key))cards.set(key,[]);cards.get(key).push(p);}return `<section class="vehicle"><div class="vehicle-heading"><span class="maker-badge">${esc(ps[0].maker)}</span><h3>${esc(ps[0].car)}</h3></div><div class="product-grid">${[...cards.values()].sort((a,b)=>(a[0].price??Infinity)-(b[0].price??Infinity)).map(card).join('')}</div></section>`;}).join('');
   $('empty').hidden=!!filtered.length;$('more').hidden=all.length<=limit;
   if(!$('more').hidden)$('more').innerHTML=`차종 더 보기 (${shown.length} / ${all.length}) <span aria-hidden="true">↓</span>`;

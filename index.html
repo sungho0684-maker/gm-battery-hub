@@ -5,7 +5,7 @@
  <meta name="theme-color" content="#132943">
  <title>국민BT | 내 차 배터리 찾기</title>
  <meta name="description" content="국민BT가 직접 운영하는 자동차 배터리 구매 안내. 차종과 장착 규격을 확인하고 네이버 스마트스토어에서 주문하세요.">
- <link rel="stylesheet" href="assets/style.css">
+ <link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/mobile.css">
  <script defer src="assets/catalog.js"></script><script defer src="assets/app.js"></script>
 </head>
 <body>
@@ -18,20 +18,20 @@
  <section class="hero container" aria-labelledby="hero-title">
   <div><p class="eyebrow"><span></span> 국민BT 직접 운영</p>
    <h1 id="hero-title">내 차 배터리,<br><em>쉽게 찾고 정확하게.</em></h1>
-   <p class="hero-copy">차종으로 찾고, 장착 규격으로 한 번 더 확인하세요.<br>주문과 결제는 네이버 스마트스토어에서 진행됩니다.</p>
+   <p class="hero-copy">차종으로 찾고, 배터리 규격을 확인하세요.<br><strong>주문·결제는 네이버 스마트스토어에서.</strong></p>
   </div>
   <aside class="hero-note"><span class="note-number">01 — 03</span><h2>찾기부터 구매까지</h2><ol><li><b>차종 검색</b><span>차종·유종·연식 표기 확인</span></li><li><b>규격 확인</b><span>현재 배터리 라벨과 비교</span></li><li><b>네이버에서 주문</b><span>반납·공구 옵션 선택 후 결제</span></li></ol></aside>
  </section>
  <section id="finder" class="container finder" aria-label="차종별 상품 찾기">
-  <div class="search-box"><label for="search">어떤 차를 타고 계신가요?</label><form id="search-form" role="search"><span class="search-icon" aria-hidden="true">⌕</span><input id="search" type="search" placeholder="차종 또는 규격 검색 · 예: 카니발, XM3, GB90R" autocomplete="off"><button type="submit">찾기</button></form>
+  <div class="search-box"><label for="search">어떤 차를 타고 계신가요?</label><form id="search-form" role="search"><span class="search-icon" aria-hidden="true">⌕</span><input id="search" type="search" placeholder="차종 또는 규격 입력" autocomplete="off"><button type="submit">찾기</button></form>
    <div class="quick"><span>빠른 검색</span><button data-query="카니발">카니발</button><button data-query="그랜저">그랜저</button><button data-query="싼타페">싼타페</button><button data-query="XM3">XM3</button><button data-query="i30">i30</button></div>
   </div>
-  <div class="filter-row"><span class="filter-label" id="maker-label">자동차 제조사</span><div id="makers" class="chips" role="group" aria-labelledby="maker-label"></div></div>
-  <div class="filter-row type-row"><span class="filter-label" id="type-label">배터리 종류</span><div id="types" class="chips compact" role="group" aria-labelledby="type-label"></div><button id="reset" class="text-button">선택 초기화</button></div>
+  <details class="filter-options" id="filter-options"><summary>제조사 · 배터리 종류로 좁히기</summary><div class="filter-row"><span class="filter-label" id="maker-label">자동차 제조사</span><div id="makers" class="chips" role="group" aria-labelledby="maker-label"></div></div>
+  <div class="filter-row type-row"><span class="filter-label" id="type-label">배터리 종류</span><div id="types" class="chips compact" role="group" aria-labelledby="type-label"></div><button id="reset" class="text-button">선택 초기화</button></div></details>
  </section>
  <section class="container results-section" aria-labelledby="results-title">
-  <div class="results-head"><div><p class="eyebrow">FIND YOUR BATTERY</p><h2 id="results-title">차종별 구매 안내</h2><p id="result-count" role="status" aria-live="polite"></p></div><button id="share" class="share-button" aria-label="현재 검색 링크 복사">검색 링크 복사 ↗</button></div>
-  <div class="selection-note"><span aria-hidden="true">ⓘ</span><p>같은 차종도 연식·유종·옵션에 따라 규격이 다릅니다. <strong>현재 장착된 배터리의 모델명을 확인한 뒤 선택해 주세요.</strong></p></div>
+  <div class="results-head"><div><p class="eyebrow">내 차에 맞는 배터리 찾기</p><h2 id="results-title">차종별 구매 안내</h2><p id="result-count" role="status" aria-live="polite"></p></div><button id="share" class="share-button" aria-label="현재 검색 링크 복사">검색 결과 공유 ↗</button></div>
+  <div class="selection-note"><span aria-hidden="true">ⓘ</span><p><strong>구매 전, 배터리 라벨을 확인하세요.</strong>같은 차종도 연식·유종·옵션에 따라 규격이 다릅니다.</p></div>
   <p id="freshness" class="freshness"></p>
   <div id="results"></div>
   <button id="more" class="more-button" hidden>차종 더 보기 <span aria-hidden="true">↓</span></button>
